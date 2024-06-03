@@ -9,16 +9,35 @@ import Foundation
 import UIKit
 
 class OCRManager {
-    let clientId = "vrfvOVhYZ8eZL44z7sg0fVuPEFx9iLVBpuXM4xC"
-    let clientSecret = "s4Lmx4Gc5AA3zI9sMrOM1FeGPzDPnWcYhaYgpsJyW2e5YKSEP74kGhUHX7vFc6BxYoBV6OsVyTOxBWsolLG05USwTuWYWnUahs9ngSfjv2t4GEdJwrksHIkvZJYm2Z5o"
-    let username = "brian.liu2021"
-    let apiKey = "de7f8706f94237c7601aa4f0c5f6076c"
+    var clientId: String
+    var clientSecret: String
+    var username: String
+    var apiKey: String
+
+    init() {
+        if let path = Bundle.main.path(forResource: "Config", ofType: "plist"),
+           let config = NSDictionary(contentsOfFile: path) as? [String: Any] {
+            clientId = config["clientId"] as? String ?? ""
+            clientSecret = config["clientSecret"] as? String ?? ""
+            username = config["username"] as? String ?? ""
+            apiKey = config["apiKey"] as? String ?? ""
+        } else {
+            clientId = ""
+            clientSecret = ""
+            username = ""
+            apiKey = ""
+        }
+    }
 
     func processImage(_ image: UIImage, completion: @escaping (Result<[String], Error>) -> Void) {
         guard let imageData = image.jpegData(compressionQuality: 0.9) else {
             completion(.failure(URLError(.cannotCreateFile)))
             return
         }
+
+        let url = URL(string: "https://api.veryfi.com/api/v8/partner/documents")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
 
         let url = URL(string: "https://api.veryfi.com/api/v8/partner/documents")!
         var request = URLRequest(url: url)
